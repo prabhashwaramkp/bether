@@ -19,7 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/kavinda/bether/x/pow/client/cli"
+	"github.com/prabhashwaramkp/bether/x/pow/client/cli"
 
 	"bether/app"
 )
