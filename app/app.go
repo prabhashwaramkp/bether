@@ -3,23 +3,38 @@ package app
 import (
 	"io"
 
-	_ "cosmossdk.io/api/cosmos/tx/config/v1" // import for side-effects
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
-	_ "cosmossdk.io/x/circuit" // import for side-effects
 	circuitkeeper "cosmossdk.io/x/circuit/keeper"
-	_ "cosmossdk.io/x/evidence" // import for side-effects
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
-	_ "cosmossdk.io/x/feegrant/module" // import for side-effects
-	nftkeeper "cosmossdk.io/x/nft/keeper"
-	_ "cosmossdk.io/x/nft/module" // import for side-effects
-	_ "cosmossdk.io/x/upgrade"    // import for side-effects
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
-	abci "github.com/cometbft/cometbft/abci/types"
+	_ "cosmossdk.io/api/cosmos/tx/config/v1"          // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/bank"           // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/consensus"      // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/distribution"   // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/mint"           // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/staking"        // import for side-effects
+	_ "cosmossdk.io/x/circuit"                                          // import for side-effects
+	_ "cosmossdk.io/x/evidence"                                         // import for side-effects
+	_ "cosmossdk.io/x/feegrant/module"                                  // import for side-effects
+	_ "cosmossdk.io/x/nft/module"										// import for side-effects
+	nftkeeper "cosmossdk.io/x/nft/keeper"
+	_ "cosmossdk.io/x/upgrade"                                          // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting"                     // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"                     // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/crisis"                           // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/group/module"                     // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/params"                           // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/slashing"                         // import for side-effects
+	_ "github.com/cosmos/ibc-go/modules/capability"                     // import for side-effects
+	_ "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts" // import for side-effects
+	_ "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"                 // import for side-effects
 	dbm "github.com/cosmos/cosmos-db"
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -28,24 +43,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
-	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import for side-effects
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting" // import for side-effects
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/bank"         // import for side-effects
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	_ "github.com/cosmos/cosmos-sdk/x/consensus" // import for side-effects
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
-	_ "github.com/cosmos/cosmos-sdk/x/crisis" // import for side-effects
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
-	_ "github.com/cosmos/cosmos-sdk/x/distribution" // import for side-effects
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -54,23 +62,15 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
-	_ "github.com/cosmos/cosmos-sdk/x/group/module" // import for side-effects
-	_ "github.com/cosmos/cosmos-sdk/x/mint"         // import for side-effects
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
-	_ "github.com/cosmos/cosmos-sdk/x/params" // import for side-effects
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	_ "github.com/cosmos/cosmos-sdk/x/slashing" // import for side-effects
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
-	_ "github.com/cosmos/cosmos-sdk/x/staking" // import for side-effects
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	_ "github.com/cosmos/ibc-go/modules/capability" // import for side-effects
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	_ "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts" // import for side-effects
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/keeper"
 	icahostkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
-	_ "github.com/cosmos/ibc-go/v8/modules/apps/29-fee" // import for side-effects
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
@@ -82,11 +82,11 @@ import (
 
 const (
 	// Name is the name of the application.
-	Name = "bether"
+	Name                 = "bether"
 	// AccountAddressPrefix is the prefix for accounts addresses.
 	AccountAddressPrefix = "cosmos"
 	// ChainCoinType is the coin type of the chain.
-	ChainCoinType = 118
+	ChainCoinType        = 118
 )
 
 var (
@@ -116,20 +116,20 @@ type App struct {
 	DistrKeeper           distrkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 
-	SlashingKeeper       slashingkeeper.Keeper
-	MintKeeper           mintkeeper.Keeper
-	GovKeeper            *govkeeper.Keeper
-	CrisisKeeper         *crisiskeeper.Keeper
-	UpgradeKeeper        *upgradekeeper.Keeper
-	ParamsKeeper         paramskeeper.Keeper
-	AuthzKeeper          authzkeeper.Keeper
-	EvidenceKeeper       evidencekeeper.Keeper
-	FeeGrantKeeper       feegrantkeeper.Keeper
-	GroupKeeper          groupkeeper.Keeper
-	NFTKeeper            nftkeeper.Keeper
-	CircuitBreakerKeeper circuitkeeper.Keeper
+	SlashingKeeper        slashingkeeper.Keeper
+	MintKeeper            mintkeeper.Keeper
+	GovKeeper             *govkeeper.Keeper
+	CrisisKeeper          *crisiskeeper.Keeper
+	UpgradeKeeper         *upgradekeeper.Keeper
+	ParamsKeeper          paramskeeper.Keeper
+	AuthzKeeper           authzkeeper.Keeper
+	EvidenceKeeper        evidencekeeper.Keeper
+	FeeGrantKeeper        feegrantkeeper.Keeper
+	GroupKeeper           groupkeeper.Keeper
+	NFTKeeper             nftkeeper.Keeper
+	CircuitBreakerKeeper  circuitkeeper.Keeper
 
-	// IBC
+    // IBC
 	IBCKeeper           *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	CapabilityKeeper    *capabilitykeeper.Keeper
 	IBCFeeKeeper        ibcfeekeeper.Keeper
@@ -153,7 +153,7 @@ type App struct {
 func init() {
 	var err error
 	clienthelpers.EnvPrefix = Name
-	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("." + Name)
+	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory("."+Name)
 	if err != nil {
 		panic(err)
 	}
@@ -183,6 +183,7 @@ func AppConfig() depinject.Config {
 			map[string]module.AppModuleBasic{
 				genutiltypes.ModuleName: genutil.NewAppModuleBasic(genutiltypes.DefaultMessageValidator),
 				govtypes.ModuleName:     gov.NewAppModuleBasic(getGovProposalHandlers()),
+				"pow": pow.AppModuleBasic{},
 				// this line is used by starport scaffolding # stargate/appConfig/moduleBasic
 			},
 		),
@@ -207,7 +208,7 @@ func New(
 			AppConfig(),
 			depinject.Supply(
 				appOpts, // supply app options
-				logger,  // supply logger
+				logger, // supply logger
 				// Supply with IBC keeper getter for the IBC modules with App Wiring.
 				// The IBC Keeper cannot be passed because it has not been initiated yet.
 				// Passing the getter, the app IBC Keeper will always be accessible.

@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	apiFile   = "/static/openapi.yml"
-	indexFile = "template/index.tpl"
+    apiFile = "/static/openapi.yml"
+    indexFile = "template/index.tpl"
 )
+
 
 //go:embed static
 var Static embed.FS

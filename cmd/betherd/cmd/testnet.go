@@ -80,6 +80,7 @@ func newTestnetApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts s
 	return initAppForTestnet(testApp, args)
 }
 
+
 func initAppForTestnet(app *app.App, args valArgs) *app.App {
 	// Required Changes:
 	//
@@ -175,7 +176,8 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 	app.DistrKeeper.SetValidatorHistoricalRewards(ctx, validator, 0, distrtypes.NewValidatorHistoricalRewards(sdk.DecCoins{}, 1))
 	app.DistrKeeper.SetValidatorCurrentRewards(ctx, validator, distrtypes.NewValidatorCurrentRewards(sdk.DecCoins{}, 1))
 	app.DistrKeeper.SetValidatorAccumulatedCommission(ctx, validator, distrtypes.InitialValidatorAccumulatedCommission())
-	app.DistrKeeper.SetValidatorOutstandingRewards(ctx, validator, distrtypes.ValidatorOutstandingRewards{Rewards: sdk.DecCoins{}})
+	app.DistrKeeper.SetValidatorOutstandingRewards(ctx, validator, distrtypes.ValidatorOutstandingRewards{Rewards: sdk.DecCoins{}})	
+
 
 	// SLASHING
 	//
@@ -187,7 +189,8 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 		StartHeight: app.LastBlockHeight() - 1,
 		Tombstoned:  false,
 	}
-	app.SlashingKeeper.SetValidatorSigningInfo(ctx, newConsAddr, newValidatorSigningInfo)
+	app.SlashingKeeper.SetValidatorSigningInfo(ctx, newConsAddr, newValidatorSigningInfo)	
+
 
 	// BANK
 	//
@@ -212,6 +215,7 @@ func initAppForTestnet(app *app.App, args valArgs) *app.App {
 
 	return app
 }
+
 
 // parse the input flags and returns valArgs
 func getCommandArgs(appOpts servertypes.AppOptions) (valArgs, error) {

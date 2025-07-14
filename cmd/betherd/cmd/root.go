@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/kavinda/bether/x/pow/client/cli"
 
 	"bether/app"
 )
@@ -48,8 +49,8 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	rootCmd := &cobra.Command{
-		Use:           app.Name + "d",
-		Short:         "Start bether node",
+		Use:   app.Name + "d",
+		Short: "Start bether node",
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
@@ -78,6 +79,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+
 	// Since the IBC modules don't support dependency injection, we need to
 	// manually register the modules on the client side.
 	// This needs to be removed after IBC supports App Wiring.
@@ -99,6 +101,9 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	return rootCmd
+	cmd.AddCommand(cli.CmdMineBlock())
+    return cmd
+
 }
 
 func overwriteFlagDefaults(c *cobra.Command, defaults map[string]string) {
